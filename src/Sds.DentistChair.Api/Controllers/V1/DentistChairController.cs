@@ -7,11 +7,12 @@ using Sds.DentistChair.Domain.Models.ChairAggregate.Services;
 using Sds.DentistChair.Domain.Notifier;
 using System.Net;
 
-namespace Sds.DentistChair.Api.Controllers;
+namespace Sds.DentistChair.Api.Controllers.V1;
 
-[Route("[controller]")]
-public class DentistChairController(
-    ILogger<DentistChairController> logger,
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/chair")]
+public class ChairController(
+    ILogger<ChairController> logger,
     IChairService chairService,
     IMapper mapper,
     INotifierMessage notifierMessage) : MainController(notifierMessage)
@@ -56,7 +57,7 @@ public class DentistChairController(
 
         var chair = mapper.Map<Chair>(chairDto);
 
-        if(!await chairService.SaveChair(chair))
+        if (!await chairService.SaveChair(chair))
             return CustomResponse(HttpStatusCode.BadRequest);
 
         return CreatedAtAction("GetChair", new { id = chair.Id }, chair);
@@ -72,7 +73,7 @@ public class DentistChairController(
         {
             var chair = mapper.Map<Chair>(chairDto);
 
-            if(!await chairService.UpdateChair(chair))
+            if (!await chairService.UpdateChair(chair))
                 return CustomResponse(HttpStatusCode.NotModified);
 
             return CustomResponse(HttpStatusCode.OK);

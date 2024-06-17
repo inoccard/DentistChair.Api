@@ -5,9 +5,10 @@ using Sds.DentistChair.Domain.Models.ChairAggregate.Services;
 using Sds.DentistChair.Domain.Notifier;
 using System.Net;
 
-namespace Sds.DentistChair.Api.Controllers;
+namespace Sds.DentistChair.Api.Controllers.V1;
 
-[Route("[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/allocation")]
 public class AllocationController(
         ILogger<AllocationController> logger,
         IChairService chairService,
