@@ -2,12 +2,16 @@
 using Microsoft.EntityFrameworkCore;
 using Sds.DentistChair.Domain.Models.ChairAggregate.Dtos;
 using Sds.DentistChair.Domain.Models.ChairAggregate.Services;
+using Sds.DentistChair.Domain.Notifier;
+using System.Net;
 
 namespace Sds.DentistChair.Api.Controllers;
 
+[Route("[controller]")]
 public class AllocationController(
         ILogger<AllocationController> logger,
-        IChairService chairService) : ControllerBase
+        IChairService chairService,
+        INotifierMessage notifierMessage) : MainController(notifierMessage)
 {
 
     [HttpPost("allocate")]
@@ -15,11 +19,16 @@ public class AllocationController(
     {
         var chairs = await chairService.GetChairs().ToArrayAsync();
         if (chairs == null || chairs.Length == 0)
-            return NotFound("No chairs available.");
+        {
+            logger.LogError("No chairs available.");
+            notifierMessage.Add("No chairs available.");
+            return CustomResponse(HttpStatusCode.NotFound);
+        }
 
-        var alocated = await chairService.Allocate(request, chairs);
+        if (!await chairService.Allocate(request, chairs))
+            return CustomResponse(HttpStatusCode.BadRequest);
 
-        return Ok();
+        return CustomResponse(HttpStatusCode.OK);
     }
 
 }

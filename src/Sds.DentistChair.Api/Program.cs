@@ -4,6 +4,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAppServices(builder.Configuration);
 builder.Services.AddDatabaseConfiguration(builder.Configuration);
+builder.Services.AddAutoMapperProfiles();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

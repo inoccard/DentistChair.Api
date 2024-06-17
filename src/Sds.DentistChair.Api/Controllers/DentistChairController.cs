@@ -1,73 +1,100 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Sds.DentistChair.Domain.Models.ChairAggregate.Dtos;
 using Sds.DentistChair.Domain.Models.ChairAggregate.Entities;
 using Sds.DentistChair.Domain.Models.ChairAggregate.Services;
+using Sds.DentistChair.Domain.Notifier;
+using System.Net;
 
 namespace Sds.DentistChair.Api.Controllers;
 
-[ApiController]
 [Route("[controller]")]
 public class DentistChairController(
     ILogger<DentistChairController> logger,
-    IChairService chairService) : ControllerBase
+    IChairService chairService,
+    IMapper mapper,
+    INotifierMessage notifierMessage) : MainController(notifierMessage)
 {
-    [HttpGet]
+    [HttpGet("get-chairs")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public ActionResult GetChairs()
     {
         var chairs = chairService.GetChairs();
 
-        return Ok(chairs.ToArray());
+        if (chairs == null)
+        {
+            notifierMessage.Add("There are no chairs");
+            logger.LogError("There are no chairs");
+            return CustomResponse(HttpStatusCode.NotFound);
+        }
+
+        return CustomResponse(HttpStatusCode.OK, chairs.ToArray());
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("get-chair/{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public ActionResult GetChair(int id)
     {
         var chair = chairService.GetChair(id);
         if (chair == null)
-            return NotFound();
+        {
+            notifierMessage.Add("Chair does not exist");
+            logger.LogError("Chair does not exist");
+            return CustomResponse(HttpStatusCode.NotFound);
+        }
 
-        return Ok(chair);
+        return CustomResponse(HttpStatusCode.OK, chair);
     }
 
-    [HttpPost]
-    public async Task<ActionResult> Save(Chair chair)
+    [HttpPost("save")]
+    public async Task<ActionResult> Save(ChairDto chairDto)
     {
-        await chairService.SaveChair(chair);
+
+        if (!ModelState.IsValid)
+            return CustomResponse(ModelState);
+
+        var chair = mapper.Map<Chair>(chairDto);
+
+        if(!await chairService.SaveChair(chair))
+            return CustomResponse(HttpStatusCode.BadRequest);
+
         return CreatedAtAction("GetChair", new { id = chair.Id }, chair);
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult> Update(int id, Chair chair)
+    [HttpPut("update/{id}")]
+    public async Task<ActionResult> Update(int id, ChairDto chairDto)
     {
-        if (id != chair.Id)
-            return BadRequest();
+        if (!ModelState.IsValid || id != chairDto.Id)
+            return CustomResponse(ModelState);
 
         try
         {
-            await chairService.UpdateChair(chair);
+            var chair = mapper.Map<Chair>(chairDto);
+
+            if(!await chairService.UpdateChair(chair))
+                return CustomResponse(HttpStatusCode.NotModified);
+
+            return CustomResponse(HttpStatusCode.OK);
         }
         catch (DbUpdateConcurrencyException)
         {
             if (!ChairExists(id))
-                return NotFound();
+                return CustomResponse(HttpStatusCode.NotFound);
             else
                 throw;
         }
-
-        return NoContent();
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("delete/{id}")]
     public async Task<ActionResult> DeleteChair(int id)
     {
         var removed = await chairService.DeleteChair(id);
 
         if (!removed)
-            return BadRequest();
+            return CustomResponse(HttpStatusCode.BadRequest);
 
-        return NoContent();
+        return CustomResponse(HttpStatusCode.OK);
     }
 
     private bool ChairExists(int id) => chairService.GetChair(id) != null;

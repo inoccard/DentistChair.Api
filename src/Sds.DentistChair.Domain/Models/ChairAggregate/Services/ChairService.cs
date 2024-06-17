@@ -1,10 +1,12 @@
 ﻿using Sds.DentistChair.Domain.Models.ChairAggregate.Dtos;
 using Sds.DentistChair.Domain.Models.ChairAggregate.Entities;
+using Sds.DentistChair.Domain.Notifier;
 using Sds.DentistChair.Domain.Repository;
 
 namespace Sds.DentistChair.Domain.Models.ChairAggregate.Services;
 
-public class ChairService(IRepository repository) : IChairService
+public class ChairService(
+    IRepository repository) : IChairService
 {
     public IQueryable<Chair> GetChairs()
         => repository.QueryAsNoTracking<Chair>();
