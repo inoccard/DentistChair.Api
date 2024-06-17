@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Sds.DentistChair.Api.Dtos;
 using Sds.DentistChair.Domain.Notifier;
 using System.Net;
-using Sds.DentistChair.Api.Dtos;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Sds.DentistChair.Api.Controllers;
 

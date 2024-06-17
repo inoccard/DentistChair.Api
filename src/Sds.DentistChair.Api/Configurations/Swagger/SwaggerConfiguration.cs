@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
 using System.Text;
 
 namespace Sds.DentistChair.Api.Configurations.Swagger;
@@ -53,7 +52,7 @@ public static class SwaggerConfiguration
         });
     }
 
-    public static void UseVersionedSwagger(this IApplicationBuilder app, 
+    public static void UseVersionedSwagger(this IApplicationBuilder app,
         IApiVersionDescriptionProvider apiVersionDescriptionProvider)
     {
         app.UseSwagger();

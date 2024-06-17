@@ -1,6 +1,5 @@
 ﻿using Sds.DentistChair.Domain.Models.ChairAggregate.Dtos;
 using Sds.DentistChair.Domain.Models.ChairAggregate.Entities;
-using Sds.DentistChair.Domain.Notifier;
 using Sds.DentistChair.Domain.Repository;
 
 namespace Sds.DentistChair.Domain.Models.ChairAggregate.Services;
