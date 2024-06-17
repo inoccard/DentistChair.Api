@@ -77,9 +77,7 @@ public class ChairService(IRepository repository) : IChairService
             {
                 DateTime endTime = currentTime.AddMinutes(allocationsPerChair);
                 if (endTime > request.EndTime)
-                {
                     endTime = request.EndTime;
-                }
 
                 newAllocations.Add(new Allocation
                 {
